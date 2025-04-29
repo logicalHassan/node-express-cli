@@ -1,0 +1,23 @@
+{
+  "name": "create-api-kit",
+  "version": "0.1.0",
+  "description": "Custom API starter generator for Express + extras",
+  "bin": {
+    "create-api-kit": "./index.js"
+  },
+  "keywords": [
+    "cli",
+    "api",
+    "express",
+    "boilerplate",
+    "generator"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "inquirer": "^9.2.8",
+    "fs-extra": "^11.2.0"
+  },
+  "type": "module"
+}
