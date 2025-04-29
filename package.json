@@ -1,9 +1,9 @@
 {
-  "name": "create-api-kit",
+  "name": "get-express-starter",
   "version": "0.1.0",
-  "description": "Custom API starter generator for Express + extras",
+  "description": "Get production ready express boilerplate with a single command",
   "bin": {
-    "create-api-kit": "./index.js"
+    "get-express-starter": "./index.js"
   },
   "keywords": [
     "cli",
@@ -12,7 +12,7 @@
     "boilerplate",
     "generator"
   ],
-  "author": "Your Name",
+  "author": "hassandev404@gmail.com",
   "license": "MIT",
   "dependencies": {
     "chalk": "^5.3.0",
