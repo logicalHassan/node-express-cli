@@ -1,58 +1,112 @@
 #!/usr/bin/env node
 
-import inquirer from "inquirer";
-import { fileURLToPath } from "url";
-import { dirname, join } from "path";
-import fs from "fs-extra";
-import chalk from "chalk";
+import fs from 'fs-extra';
+import chalk from 'chalk';
+import prompts from 'prompts';
+import { join } from 'path';
+import { existsSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const TEMPLATE_MAP = {
+  'ts-mongo': 'mongo-ts',
+  'ts-pg-prisma': 'pg-prisma',
+  'ts-pg-drizzle': 'pg-drizzle',
+  'js-cjs': 'js-cjs',
+  'js-esm': 'js-esm',
+};
 
 const log = console.log;
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 async function main() {
-  log(chalk.cyan("🚀 Welcome to create-api-kit"));
+  log(chalk.cyan.bold('\nWelcome to get-express-starter\n'));
 
-  const answers = await inquirer.prompt([
-    {
-      type: "input",
-      name: "projectName",
-      message: "Your project folder name:",
-      default: "my-api-server",
-    },
-    {
-      type: "list",
-      name: "template",
-      message: "Choose a base boilerplate:",
-      choices: ["CommonJS", "ESM"],
-    },
-    // {
-    //   type: "checkbox",
-    //   name: "modules",
-    //   message: "Select optional modules:",
-    //   choices: ["Redis", "S3"],
-    // },
-  ]);
+  const { projectName } = await prompts({
+    type: 'text',
+    name: 'projectName',
+    message: 'Project name:',
+    initial: 'my-api-server',
+  });
 
-  const projectPath = join(process.cwd(), answers.projectName);
-  const baseTemplate = answers.template === "CommonJS" ? "base-commonjs" : "base-esm";
+  const projectPath = join(process.cwd(), projectName);
 
-  log(chalk.green(`\nCreating project in: ${projectPath}`));
+  if (existsSync(projectPath)) {
+    log(chalk.red(`Folder "${projectName}" already exists. Please choose a different name.`));
+    return;
+  }
 
-  await fs.copy(join(__dirname, "templates", baseTemplate), projectPath);
-  log(chalk.yellow("✔ Base template copied."));
+  const { language } = await prompts({
+    type: 'select',
+    name: 'language',
+    message: 'Choose your language:',
+    choices: [
+      { title: 'TypeScript (recommended)', value: 'ts' },
+      { title: 'JavaScript', value: 'js' },
+    ],
+  });
 
-  // for (const mod of answers.modules) {
-  //   const modPath = mod.toLowerCase();
-  //   await fs.copy(join(__dirname, "templates", "modules", modPath), projectPath);
-  //   log(chalk.yellow(`✔ Added ${mod} module.`));
-  // }
+  let templateKey = '';
 
-  log(chalk.green("\n✅ Setup complete!"));
-  log(chalk.blue(`\nTo start:\n  cd ${answers.projectName} && npm install && npm run dev`));
+  if (language === 'ts') {
+    const { database } = await prompts({
+      type: 'select',
+      name: 'database',
+      message: 'Select a database:',
+      choices: [
+        { title: 'MongoDB', value: 'mongo' },
+        { title: 'PostgreSQL', value: 'postgres' },
+      ],
+    });
+
+    if (database === 'mongo') {
+      templateKey = 'ts-mongo';
+    } else {
+      const { orm } = await prompts({
+        type: 'select',
+        name: 'orm',
+        message: 'Choose an ORM:',
+        choices: [
+          { title: 'Prisma (recommended)', value: 'prisma' },
+          { title: 'Drizzle', value: 'drizzle' },
+        ],
+      });
+      templateKey = `ts-pg-${orm}`;
+    }
+  } else {
+    const { moduleType } = await prompts({
+      type: 'select',
+      name: 'moduleType',
+      message: 'Choose JS module system:',
+      choices: [
+        { title: 'CommonJS', value: 'cjs' },
+        { title: 'ESM', value: 'esm' },
+      ],
+    });
+    templateKey = `js-${moduleType}`;
+  }
+
+  const selectedTemplate = TEMPLATE_MAP[templateKey];
+  const templatePath = join(__dirname, 'templates', selectedTemplate);
+
+  try {
+    log(chalk.yellow(`\nScaffolding project...`));
+    await fs.copy(templatePath, projectPath);
+    log(chalk.green(`✔ Project created in "${projectName}"`));
+
+    log(chalk.blue(`\nNext steps:`));
+    log(`   cd ${projectName}`);
+    log(`   pnpm install`);
+    log(`   pnpm dev\n`);
+
+    log(chalk.green('✅ All set! Happy coding!\n'));
+  } catch (err) {
+    log(chalk.red('❌ Failed to scaffold project:'), err);
+  }
 }
 
 main().catch((err) => {
-  console.error(chalk.red("❌ Error:"), err);
-  process.exit(1);
+  console.error(chalk.red('❌ Unexpected error:'), err);
 });
