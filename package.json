@@ -1,6 +1,6 @@
 {
   "name": "get-express-starter",
-  "version": "0.1.0",
+  "version": "1.1.0",
   "description": "Get production ready express boilerplate with a single command",
   "bin": {
     "get-express-starter": "./index.js"
@@ -17,7 +17,6 @@
   "dependencies": {
     "chalk": "^5.3.0",
     "fs-extra": "^11.2.0",
-    "inquirer": "^9.2.8",
     "prompts": "^2.4.2"
   },
   "type": "module"
