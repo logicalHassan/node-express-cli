@@ -1,0 +1,37 @@
+services:
+  database:
+    container_name: postgresql
+    image: postgres
+    restart: unless-stopped
+    ports:
+      - '5431:5432'
+    environment:
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: node-app
+    restart: unless-stopped
+    ports:
+      - '5000:5000'
+    env_file:
+      - ./.env.production
+    depends_on:
+      - database
+    networks:
+      - app-network
+
+volumes:
+  db-data:
+
+networks:
+  app-network:
+    driver: bridge

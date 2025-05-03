@@ -9,11 +9,9 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
 const TEMPLATE_MAP = {
-  'ts-mongo': 'mongo-ts',
-  'ts-pg-prisma': 'pg-prisma',
-  'ts-pg-drizzle': 'pg-drizzle',
-  'js-cjs': 'js-cjs',
-  'js-esm': 'js-esm',
+  'javascript-mongo': 'node-express-boilerplate',
+  'typescript-mongo': 'nodets-express-boilerplate',
+  'typescript-postgres-prisma': 'express-postgres-prisma',
 };
 
 const log = console.log;
@@ -43,14 +41,14 @@ async function main() {
     name: 'language',
     message: 'Choose your language:',
     choices: [
-      { title: 'TypeScript (recommended)', value: 'ts' },
-      { title: 'JavaScript', value: 'js' },
+      { title: 'TypeScript (recommended)', value: 'typescript' },
+      { title: 'JavaScript', value: 'javascript' },
     ],
   });
 
   let templateKey = '';
 
-  if (language === 'ts') {
+  if (language === 'typescript') {
     const { database } = await prompts({
       type: 'select',
       name: 'database',
@@ -61,31 +59,15 @@ async function main() {
       ],
     });
 
-    if (database === 'mongo') {
-      templateKey = 'ts-mongo';
-    } else {
-      const { orm } = await prompts({
-        type: 'select',
-        name: 'orm',
-        message: 'Choose an ORM:',
-        choices: [
-          { title: 'Prisma (recommended)', value: 'prisma' },
-          { title: 'Drizzle', value: 'drizzle' },
-        ],
-      });
-      templateKey = `ts-pg-${orm}`;
-    }
+    templateKey = `typescript-${database}`;
   } else {
-    const { moduleType } = await prompts({
-      type: 'select',
-      name: 'moduleType',
-      message: 'Choose JS module system:',
-      choices: [
-        { title: 'CommonJS', value: 'cjs' },
-        { title: 'ESM', value: 'esm' },
-      ],
-    });
-    templateKey = `js-${moduleType}`;
+    // Default to Mongo for JavaScript
+    templateKey = 'javascript-mongo';
+  }
+
+  if (!TEMPLATE_MAP[templateKey]) {
+    log(chalk.red(`❌ Template for "${templateKey}" is not supported.`));
+    return;
   }
 
   const selectedTemplate = TEMPLATE_MAP[templateKey];

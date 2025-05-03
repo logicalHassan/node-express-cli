@@ -1,6 +1,6 @@
 {
   "name": "get-express-starter",
-  "version": "1.1.1",
+  "version": "2.0.1",
   "description": "Get production ready express boilerplate with a single command",
   "bin": {
     "get-express-starter": "./index.js"
@@ -18,7 +18,6 @@
     "rest api starter",
     "typescript api starter",
     "express prisma",
-    "express drizzle",
     "express mongodb",
     "express postgresql",
     "express docker",

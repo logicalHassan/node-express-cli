@@ -1,0 +1,31 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: node-app
+    env_file:
+      - ./.env.production
+    ports:
+      - '5000:5000'
+    networks:
+      - node-network
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:8.0.4
+    container_name: node-mongo
+    ports:
+      - '27016:27017'
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - node-network
+
+networks:
+  node-network:
+    driver: bridge
+
+volumes:
+  mongo-data:

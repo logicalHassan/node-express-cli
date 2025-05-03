@@ -1,0 +1,18 @@
+{
+  "apps": [
+    {
+      "name": "app",
+      "script": "./dist/index.js",
+      "instances": 1,
+      "autorestart": true,
+      "watch": false,
+      "time": true,
+      "env_production": {
+        "NODE_ENV": "production"
+      },
+      "env_test": {
+        "NODE_ENV": "test"
+      }
+    }
+  ]
+}

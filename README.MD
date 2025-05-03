@@ -40,8 +40,8 @@ $ get-express-starter
 ✔ ORM: Prisma
 
 ➡️ cd my-api
-➡️ npm install
-➡️ npm run dev
+➡️ pnpm install
+➡️ pnpm dev
 ```
 
 ## Templates
@@ -51,10 +51,7 @@ Your project will be generated using boilerplate templates located internally:
 
 - Express + MongoDB + TypeScript
 
-- Express + PostgreSQL + Prisma + TypeScript
+- Express + PostgreSQL + TypeScript
 
-- Express + PostgreSQL + Drizzle + TypeScript
+- Express + MongoDB + JavaScript
 
-- Express + MongoDB + JavaScript (CommonJS)
-
-- Express + MongoDB + JavaScript (ES Modules)
