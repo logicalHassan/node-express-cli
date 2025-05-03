@@ -11,7 +11,7 @@ import { dirname } from 'path';
 const TEMPLATE_MAP = {
   'javascript-mongo': 'node-express-boilerplate',
   'typescript-mongo': 'nodets-express-boilerplate',
-  'typescript-postgres-prisma': 'express-postgres-prisma',
+  'typescript-postgres': 'express-postgres-prisma',
 };
 
 const log = console.log;
