@@ -7,8 +7,9 @@
     "build": "tsup",
     "start": "pm2 start ecosystem.config.json --no-daemon --env production ",
     "clean": "rm -rf dist",
-    "lint": "biome check src/",
-    "lint:fix": "biome check src/ --fix",
+    "format": "biome format . --write",
+    "lint": "biome lint ./src",
+    "lint:fix": "biome lint ./src --write",
     "test": "echo Add a test library",
     "prisma:migrate:dev": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",
@@ -65,20 +66,13 @@
     "typescript": "^5.8.3"
   },
   "tsup": {
-    "entry": [
-      "src",
-      "!src/types",
-      "!src/**/__tests__/**",
-      "!src/**/*.test.*"
-    ],
+    "entry": ["src", "!src/types", "!src/**/__tests__/**", "!src/**/*.test.*"],
     "splitting": false,
     "sourcemap": true,
     "clean": true
   },
   "lint-staged": {
-    "*.{js,ts,cjs,mjs,d.cts,d.mts,json,jsonc}": [
-      "biome check --write --no-errors-on-unmatched"
-    ]
+    "*.{js,ts,cjs,mjs,d.cts,d.mts,json,jsonc}": ["biome check --write --no-errors-on-unmatched"]
   },
   "packageManager": "pnpm@10.2.0"
 }

@@ -1,7 +1,7 @@
-import User from "@/models/user.model";
-import type { IUser, PaginationFilters, PaginationOptions } from "@/types";
-import { ApiError } from "@/utils";
-import httpStatus from "http-status";
+import User from '@/models/user.model';
+import type { IUser, PaginationFilters, PaginationOptions } from '@/types';
+import { ApiError } from '@/utils';
+import httpStatus from 'http-status';
 
 const isEmailTaken = async (email: string, excludeUserId?: string) => {
   const user = await User.findOne({ email, _id: { $ne: excludeUserId } });
@@ -10,7 +10,7 @@ const isEmailTaken = async (email: string, excludeUserId?: string) => {
 
 const createUser = async (userBody: IUser) => {
   if (await isEmailTaken(userBody.email)) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "Email already taken");
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
   }
   return User.create(userBody);
 };
@@ -23,7 +23,7 @@ const getUserById = async (id: string) => {
   const user = await User.findById(id);
 
   if (!user) {
-    throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
   }
 
   return user;
@@ -37,7 +37,7 @@ const updateUserById = async (userId: string, updateBody: Partial<IUser>) => {
   const user = await getUserById(userId);
 
   if (updateBody.email && (await isEmailTaken(updateBody.email, userId))) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "Email already taken");
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
   }
 
   Object.assign(user, updateBody);
@@ -49,7 +49,7 @@ const deleteUserById = async (userId: string) => {
   const user = await User.findOneAndDelete({ _id: userId });
 
   if (!user) {
-    throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
   }
 
   return user;

@@ -1,5 +1,5 @@
-import type { tokenTypes } from "@/config/tokens";
-import type { Model } from "mongoose";
+import type { tokenTypes } from '@/config/tokens';
+import type { Model } from 'mongoose';
 
 export interface IUser {
   id: string;

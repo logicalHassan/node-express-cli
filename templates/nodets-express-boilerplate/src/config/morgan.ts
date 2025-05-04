@@ -1,7 +1,7 @@
-import morgan from 'morgan';
 import { env } from '@/config/env';
-import { logger } from './logger';
 import type { Response } from 'express';
+import morgan from 'morgan';
+import { logger } from './logger';
 
 morgan.token('message', (req, res: Response) => res.locals.errorMessage || '');
 

@@ -1,12 +1,12 @@
-import { env } from "@/config";
-import { tokenTypes } from "@/config/tokens";
-import Token from "@/models/token.model";
-import type { IToken, IUser, TokenTypes } from "@/types";
-import { ApiError } from "@/utils";
-import httpStatus from "http-status";
-import jwt from "jsonwebtoken";
-import moment from "moment";
-import userService from "./user.service";
+import { env } from '@/config';
+import { tokenTypes } from '@/config/tokens';
+import Token from '@/models/token.model';
+import type { IToken, IUser, TokenTypes } from '@/types';
+import { ApiError } from '@/utils';
+import httpStatus from 'http-status';
+import jwt from 'jsonwebtoken';
+import moment from 'moment';
+import userService from './user.service';
 
 const generateToken = (userId: string, expires: moment.Moment, type: TokenTypes, secret = env.jwt.secret) => {
   const payload = {
@@ -44,16 +44,16 @@ const verifyToken = async (token: string, type: TokenTypes) => {
     blacklisted: false,
   });
   if (!tokenDoc) {
-    throw new Error("Token not found");
+    throw new Error('Token not found');
   }
   return tokenDoc;
 };
 
 const generateAuthTokens = async (user: IUser) => {
-  const accessTokenExpires = moment().add(env.jwt.accessExpirationMinutes, "minutes");
+  const accessTokenExpires = moment().add(env.jwt.accessExpirationMinutes, 'minutes');
   const accessToken = generateToken(user.id, accessTokenExpires, tokenTypes.ACCESS);
 
-  const refreshTokenExpires = moment().add(env.jwt.refreshExpirationDays, "days");
+  const refreshTokenExpires = moment().add(env.jwt.refreshExpirationDays, 'days');
   const refreshToken = generateToken(user.id, refreshTokenExpires, tokenTypes.REFRESH);
   await saveToken(refreshToken, user.id, refreshTokenExpires, tokenTypes.REFRESH);
 
@@ -72,16 +72,16 @@ const generateAuthTokens = async (user: IUser) => {
 const generateResetPasswordToken = async (email: string) => {
   const user = await userService.getUserByEmail(email);
   if (!user) {
-    throw new ApiError(httpStatus.NOT_FOUND, "No users found with this email");
+    throw new ApiError(httpStatus.NOT_FOUND, 'No users found with this email');
   }
-  const expires = moment().add(env.jwt.resetPasswordExpirationMinutes, "minutes");
+  const expires = moment().add(env.jwt.resetPasswordExpirationMinutes, 'minutes');
   const resetPasswordToken = generateToken(user.id, expires, tokenTypes.RESET_PASSWORD);
   await saveToken(resetPasswordToken, user.id, expires, tokenTypes.RESET_PASSWORD);
   return resetPasswordToken;
 };
 
 const generateVerifyEmailToken = async (user: IUser) => {
-  const expires = moment().add(env.jwt.verifyEmailExpirationMinutes, "minutes");
+  const expires = moment().add(env.jwt.verifyEmailExpirationMinutes, 'minutes');
   const verifyEmailToken = generateToken(user.id, expires, tokenTypes.VERIFY_EMAIL);
   await saveToken(verifyEmailToken, user.id, expires, tokenTypes.VERIFY_EMAIL);
   return verifyEmailToken;
@@ -91,7 +91,7 @@ const getToken = async (where: Partial<IToken>) => {
   const tokenDoc = await Token.findOne(where);
 
   if (!tokenDoc) {
-    throw new ApiError(httpStatus.NOT_FOUND, "Token not found");
+    throw new ApiError(httpStatus.NOT_FOUND, 'Token not found');
   }
 
   return tokenDoc;
@@ -101,7 +101,7 @@ const deleteToken = async (where: Partial<IToken>) => {
   const tokenDoc = await Token.findOneAndDelete(where);
 
   if (!tokenDoc) {
-    throw new ApiError(httpStatus.NOT_FOUND, "Token not found");
+    throw new ApiError(httpStatus.NOT_FOUND, 'Token not found');
   }
 };
 

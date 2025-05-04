@@ -1,15 +1,15 @@
-import { logger } from "@/config/logger";
-import { tokenTypes } from "@/config/tokens";
-import { ApiError } from "@/utils";
-import { comparePassword } from "@/utils/passwordHash";
-import httpStatus from "http-status";
-import tokenService from "./token.service";
-import userService from "./user.service";
+import { logger } from '@/config/logger';
+import { tokenTypes } from '@/config/tokens';
+import { ApiError } from '@/utils';
+import { comparePassword } from '@/utils/passwordHash';
+import httpStatus from 'http-status';
+import tokenService from './token.service';
+import userService from './user.service';
 
 const loginUserWithEmailAndPassword = async (email: string, password: string) => {
   const user = await userService.getUserByEmail(email);
   if (!user || !(await comparePassword(password, user.password))) {
-    throw new ApiError(httpStatus.UNAUTHORIZED, "Incorrect email or password");
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Incorrect email or password');
   }
   return user;
 };
@@ -27,7 +27,7 @@ const refreshAuth = async (refreshToken: string) => {
     return tokenService.generateAuthTokens(user);
   } catch (error) {
     logger.error(error);
-    throw new ApiError(httpStatus.UNAUTHORIZED, "Please authenticate");
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Please authenticate');
   }
 };
 
@@ -39,7 +39,7 @@ const resetPassword = async (resetPasswordToken: string, newPassword: string) =>
     await tokenService.deleteToken({ user: user.id, type: tokenTypes.RESET_PASSWORD });
     return user;
   } catch (error) {
-    throw new ApiError(httpStatus.UNAUTHORIZED, "Password reset failed");
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Password reset failed');
   }
 };
 
@@ -51,7 +51,7 @@ const verifyEmail = async (verifyEmailToken: string) => {
     await tokenService.deleteToken({ user: user.id, type: tokenTypes.VERIFY_EMAIL });
     await userService.updateUserById(user.id, { isEmailVerified: true });
   } catch (error) {
-    throw new ApiError(httpStatus.UNAUTHORIZED, "Email verification failed");
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Email verification failed');
   }
 };
 

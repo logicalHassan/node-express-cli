@@ -1,7 +1,7 @@
-import httpStatus from 'http-status';
 import userService from '@/services/user.service';
 import { pick } from '@/utils';
 import type { Request, RequestHandler, Response } from 'express';
+import httpStatus from 'http-status';
 
 const createUser: RequestHandler = async (req: Request, res: Response) => {
   const user = await userService.createUser(req.body);

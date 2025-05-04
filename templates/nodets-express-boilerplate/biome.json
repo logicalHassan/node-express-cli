@@ -3,11 +3,16 @@
   "formatter": {
     "indentStyle": "space",
     "lineWidth": 120,
-    "lineEnding": "lf",
-    "ignore": ["./src/models/plugins/**/*.ts"]
+    "lineEnding": "lf"
   },
   "organizeImports": { "enabled": true },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single"
+    }
+  },
   "linter": {
+    "ignore": ["./src/models/plugins/**/*.ts"],
     "enabled": true,
     "rules": {
       "recommended": true,

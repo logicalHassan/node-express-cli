@@ -1,7 +1,7 @@
-import nodemailer from 'nodemailer';
-import { logger } from '@/config/logger';
 import { env } from '@/config';
+import { logger } from '@/config/logger';
 import { PASSWORD_RESET_REQUEST, PASSWORD_RESET_SUCCESS, VERIFICATION_EMAIL } from '@/utils/emailTemplates';
+import nodemailer from 'nodemailer';
 
 const transport = nodemailer.createTransport(env.email.smtp);
 if (env.mode !== 'test') {
@@ -9,7 +9,7 @@ if (env.mode !== 'test') {
     .verify()
     .then(() => logger.info('Connected to email server'))
     .catch(() =>
-      logger.warn('Unable to connect to email server. Make sure you have configured the SMTP options in .env')
+      logger.warn('Unable to connect to email server. Make sure you have configured the SMTP options in .env'),
     );
 }
 

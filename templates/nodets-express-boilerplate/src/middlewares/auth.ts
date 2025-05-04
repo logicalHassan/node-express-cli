@@ -1,10 +1,10 @@
-import jwt from 'jsonwebtoken';
-import httpStatus from 'http-status';
-import { userService } from '@/services';
 import { env } from '@/config';
 import { tokenTypes } from '@/config/tokens';
+import { userService } from '@/services';
 import { ApiError } from '@/utils/ApiError';
 import type { NextFunction, Request, Response } from 'express';
+import httpStatus from 'http-status';
+import jwt from 'jsonwebtoken';
 
 /**
  * Middleware to authenticate a JWT token and attach the user to the request object.

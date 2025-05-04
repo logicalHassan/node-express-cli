@@ -1,9 +1,9 @@
-import express from 'express';
+import { ADMIN } from '@/config';
+import userController from '@/controllers/user.controller';
 import auth from '@/middlewares/auth';
 import validate from '@/middlewares/validate';
-import userController from '@/controllers/user.controller';
 import userValidation from '@/validations/user.validation';
-import { ADMIN } from '@/config';
+import express from 'express';
 
 const router = express.Router();
 

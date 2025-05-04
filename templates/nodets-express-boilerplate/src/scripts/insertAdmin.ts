@@ -1,8 +1,8 @@
-import User from '@/models/user.model';
-import mongoose from 'mongoose';
-import readline from 'readline';
+import readline from 'node:readline';
 import { env } from '@/config';
-import { IUser } from '@/types';
+import User from '@/models/user.model';
+import type { IUser } from '@/types';
+import mongoose from 'mongoose';
 
 const rl = readline.createInterface({
   input: process.stdin,

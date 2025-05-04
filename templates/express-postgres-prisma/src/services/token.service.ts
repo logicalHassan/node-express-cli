@@ -1,13 +1,13 @@
-import jwt from 'jsonwebtoken';
+import { env } from '@/config';
+import { tokenTypes } from '@/config/tokens';
+import prisma from '@/lib/prisma';
+import type { User } from '@/types';
+import { ApiError } from '@/utils';
+import type { Token, TokenType } from '@prisma/client';
 import httpStatus from 'http-status';
+import jwt from 'jsonwebtoken';
 import moment from 'moment';
 import userService from './user.service';
-import { env } from '@/config';
-import { ApiError } from '@/utils';
-import { tokenTypes } from '@/config/tokens';
-import type { Token, TokenType } from '@prisma/client';
-import type { User } from '@/types';
-import prisma from '@/lib/prisma';
 
 const generateToken = (userId: string, expires: moment.Moment, type: TokenType, secret = env.jwt.secret) => {
   const payload = {
@@ -24,7 +24,7 @@ const saveToken = async (
   userId: string,
   expires: moment.Moment,
   type: TokenType,
-  blacklisted = false
+  blacklisted = false,
 ) => {
   const tokenDoc = await prisma.token.create({
     data: {

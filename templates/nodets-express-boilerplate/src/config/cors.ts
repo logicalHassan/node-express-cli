@@ -1,5 +1,5 @@
-import { env } from './env';
 import type { CorsOptions } from 'cors';
+import { env } from './env';
 
 const allowedOrigins = process.env.NODE_ENV === 'production' ? env.frontend.url : '*';
 

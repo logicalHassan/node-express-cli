@@ -1,9 +1,9 @@
+import type { IUser, PaginatedModel } from '@/types';
+import { hashPassword } from '@/utils/passwordHash';
+import { Schema, model } from 'mongoose';
+import validator from 'validator';
 import paginate from './plugins/paginate';
 import toJSON from './plugins/toJSON';
-import validator from 'validator';
-import { Schema, model } from 'mongoose';
-import { IUser, PaginatedModel } from '@/types';
-import { hashPassword } from '@/utils/passwordHash';
 
 const userSchema = new Schema<IUser>(
   {
@@ -44,16 +44,15 @@ const userSchema = new Schema<IUser>(
       default: false,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 userSchema.plugin(paginate);
 userSchema.plugin(toJSON);
 
 userSchema.pre('save', async function (next) {
-  const user = this;
-  if (user.isModified('password')) {
-    user.password = await hashPassword(user.password);
+  if (this.isModified('password')) {
+    this.password = await hashPassword(this.password);
   }
   next();
 });

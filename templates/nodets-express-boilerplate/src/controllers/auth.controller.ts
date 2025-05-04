@@ -1,6 +1,6 @@
-import httpStatus from 'http-status';
+import { authService, emailService, tokenService } from '@/services';
 import type { Request, RequestHandler, Response } from 'express';
-import { authService, tokenService, emailService } from '@/services';
+import httpStatus from 'http-status';
 
 const login: RequestHandler = async (req: Request, res: Response) => {
   const { email, password } = req.body;

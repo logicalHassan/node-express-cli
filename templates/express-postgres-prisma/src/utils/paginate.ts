@@ -11,10 +11,13 @@ async function paginate<T>(this: any, options: PaginationOptions, filters: Pagin
     includeOptions = options.include
       .split(',')
       .map((key) => key.trim())
-      .reduce((acc, key) => {
-        if (key) acc[key] = true;
-        return acc;
-      }, {} as Record<string, true>);
+      .reduce(
+        (acc, key) => {
+          if (key) acc[key] = true;
+          return acc;
+        },
+        {} as Record<string, true>,
+      );
   }
 
   // Search query implementation

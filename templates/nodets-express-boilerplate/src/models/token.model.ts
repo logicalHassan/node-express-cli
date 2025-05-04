@@ -1,7 +1,7 @@
-import mongoose from 'mongoose';
-import toJSON from './plugins/toJSON';
 import { tokenTypes } from '@/config/tokens';
 import type { IToken } from '@/types';
+import mongoose from 'mongoose';
+import toJSON from './plugins/toJSON';
 
 const tokenSchema = new mongoose.Schema(
   {
@@ -31,7 +31,7 @@ const tokenSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 tokenSchema.plugin(toJSON);
