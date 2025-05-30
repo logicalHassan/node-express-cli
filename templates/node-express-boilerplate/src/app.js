@@ -44,12 +44,17 @@ if (env.mode === 'production') {
   app.use('/api/auth', authLimiter);
 }
 
+// root route
+app.get('/', (_, res) => {
+  res.status(httpStatus.OK).json({ status: 'OK' });
+});
+
 // api routes
-app.use('/api', routes);
+app.use('/v1', routes);
 
 // send back a 404 error for any unknown api request
 app.use((req, res, next) => {
-  next(new ApiError(httpStatus.NOT_FOUND, 'Route not found'));
+  next(new ApiError(httpStatus.NOT_FOUND, 'No endpoint found'));
 });
 
 // convert error to ApiError, if needed

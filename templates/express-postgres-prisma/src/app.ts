@@ -1,16 +1,16 @@
 import 'express-async-errors';
-import helmet from 'helmet';
+import { corsOptions, env } from '@/config';
+import morgan from '@/config/morgan';
+import { errorConverter, errorHandler } from '@/middlewares/error';
+import { authLimiter } from '@/middlewares/rateLimiter';
+import routes from '@/routes';
+import { ApiError } from '@/utils';
+import compression from 'compression';
+import cors from 'cors';
 import express from 'express';
 import mongoSanitize from 'express-mongo-sanitize';
-import compression from 'compression';
+import helmet from 'helmet';
 import httpStatus from 'http-status';
-import cors from 'cors';
-import routes from '@/routes';
-import morgan from '@/config/morgan';
-import { ApiError } from '@/utils';
-import { corsOptions, env } from '@/config';
-import { authLimiter } from '@/middlewares/rateLimiter';
-import { errorConverter, errorHandler } from '@/middlewares/error';
 
 const app = express();
 
@@ -42,12 +42,17 @@ if (env.mode === 'production') {
   app.use('/v1/auth', authLimiter);
 }
 
+// root route
+app.get('/', (_, res) => {
+  res.status(200).json({ status: 'OK' });
+});
+
 // v1 api routes
 app.use('/v1', routes);
 
 // send back a 404 error for any unknown api request
 app.use((req, res, next) => {
-  next(new ApiError(httpStatus.NOT_FOUND, 'No Endpoint found'));
+  next(new ApiError(httpStatus.NOT_FOUND, 'No endpoint found'));
 });
 
 // convert error to ApiError, if needed

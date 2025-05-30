@@ -7,6 +7,7 @@ import { join } from 'path';
 import { existsSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { addGeneratorToProject } from './addGenerator.js';
 
 const TEMPLATE_MAP = {
   'javascript-mongo': 'node-express-boilerplate',
@@ -76,14 +77,19 @@ async function main() {
   try {
     log(chalk.yellow(`\nScaffolding project...`));
     await fs.copy(templatePath, projectPath);
+
+    if (addGenerator) {
+      await addGeneratorToProject(selectedTemplate, projectPath, __dirname);
+    }
+
     log(chalk.green(`✔ Project created in "${projectName}"`));
 
     log(chalk.blue(`\nNext steps:`));
     log(`   cd ${projectName}`);
     log(`   pnpm install`);
-    log(`   pnpm dev\n`);
-
-    log(chalk.green('✅ All set! Happy coding!\n'));
+    log(`   pnpm dev`);
+    if (addGenerator) log(`   pnpm generate   # to run generators`);
+    log(chalk.green('\n✅ All set! Happy coding!\n'));
   } catch (err) {
     log(chalk.red('❌ Failed to scaffold project:'), err);
   }

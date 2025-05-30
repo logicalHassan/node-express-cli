@@ -6,3 +6,4 @@ tests
 .vscode
 .husky
 *.log
+.env*

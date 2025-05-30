@@ -19,7 +19,8 @@
     "prisma:seed": "prisma db seed",
     "prisma:studio": "prisma studio -n 0.0.0.0",
     "docker:start": "docker compose up --env-file ./.env.production --build -d",
-    "prepare": "husky"
+    "prepare": "husky",
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "hassandev404@gmail.com",

@@ -5,7 +5,7 @@
 ## Features
 
 - ✅ TypeScript & JavaScript support
-- ✅ MongoDB & PostgreSQL support with Prisma or Drizzle
+- ✅ MongoDB & PostgreSQL support
 - ✅ Fully modular boilerplates (auth, user, utils, etc.)
 - ✅ JWT authentication with protected routes
 - ✅ Robust request validation with Joi
@@ -37,7 +37,6 @@ $ get-express-starter
 ✔ Project name: my-api
 ✔ Language: TypeScript
 ✔ Database: PostgreSQL
-✔ ORM: Prisma
 
 ➡️ cd my-api
 ➡️ pnpm install
@@ -54,4 +53,3 @@ Your project will be generated using boilerplate templates located internally:
 - Express + PostgreSQL + TypeScript
 
 - Express + MongoDB + JavaScript
-

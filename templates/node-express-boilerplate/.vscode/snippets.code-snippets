@@ -1,22 +1,6 @@
 {
-    "Init Express Controller File": {
-    "prefix": "excontroller-init",
-    "body": [
-        "const httpStatus = require('http-status');",
-        "const catchAsync = require('../utils/catchAsync')",
-      "",
-      "const ${1:functionName} = catchAsync(async (req, res) => {",
-      "  $0",
-      "});",
-      "",
-      "module.exports = {",
-      "  ${1:functionName},",
-      "};"
-    ],
-    "description": "Initialize a new Express controller file with imports and a base function"
-  },
     "Express Controller Function": {
-      "prefix": "excontroller",
+      "prefix": "exctrl",
       "body": [
         "const ${1:functionName} = catchAsync(async (req, res) => {",
         "  $0",
