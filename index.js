@@ -62,7 +62,6 @@ async function main() {
 
     templateKey = `typescript-${database}`;
   } else {
-    // Default to Mongo for JavaScript
     templateKey = 'javascript-mongo';
   }
 
@@ -70,6 +69,13 @@ async function main() {
     log(chalk.red(`❌ Template for "${templateKey}" is not supported.`));
     return;
   }
+
+  const { addGenerator } = await prompts({
+    type: 'confirm',
+    name: 'addGenerator',
+    message: 'Do you want to include code generators?',
+    initial: true,
+  });
 
   const selectedTemplate = TEMPLATE_MAP[templateKey];
   const templatePath = join(__dirname, 'templates', selectedTemplate);

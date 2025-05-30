@@ -1,0 +1,12 @@
+const httpStatus = require('http-status');
+const catchAsync = require('../utils/catchAsync');
+const {{camelCase name}} = require('../services/{{kebabCase name}}.service');
+
+const get{{pascalCase name}} = catchAsync(async (req, res) => {
+  const result = await {{camelCase name}}Service.get{{pascalCase name}}();
+  res.status(httpStatus.OK).json(result);
+});
+
+module.exports = {
+  get{{pascalCase name}},
+};
