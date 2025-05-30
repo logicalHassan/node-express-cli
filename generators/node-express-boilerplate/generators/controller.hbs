@@ -1,6 +1,6 @@
 const httpStatus = require('http-status');
 const catchAsync = require('../utils/catchAsync');
-const {{camelCase name}} = require('../services/{{kebabCase name}}.service');
+const {{camelCase name}}Service = require('../services/{{fileName}}.service');
 
 const get{{pascalCase name}} = catchAsync(async (req, res) => {
   const result = await {{camelCase name}}Service.get{{pascalCase name}}();

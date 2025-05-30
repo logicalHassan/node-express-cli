@@ -1,28 +1,36 @@
 module.exports = (plop) => {
-  plop.setHelper('kebabCase', (text) =>
-    text
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '')
-  );
-
-  plop.setHelper('camelCase', (text) => text.toLowerCase().replace(/-(.)/g, (_, group1) => group1.toUpperCase()));
-
-  plop.setHelper('pascalCase', (text) =>
-    text
-      .toLowerCase()
-      .replace(/-(.)/g, (_, group1) => group1.toUpperCase())
-      .replace(/^(.)/, (_, group1) => group1.toUpperCase())
-  );
-
-  plop.setHelper('snakeCase', (text) =>
-    text
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '_')
-      .replace(/^-|_$/g, '')
-  );
+  const NAMING = {
+    fileCase: 'kebabCase', // options: kebabCase, camelCase, pascalCase, snakeCase
+    variableCase: 'camelCase', // options: camelCase, pascalCase
+  };
 
   const basePath = './src';
+
+  // Helpers
+  const normalizeInput = (text) =>
+    text
+      .replace(/([a-z])([A-Z])/g, '$1-$2')
+      .replace(/[\s_]+/g, '-')
+      .toLowerCase();
+
+  const toKebabCase = (text) =>
+    normalizeInput(text)
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+
+  const toCamelCase = (text) => normalizeInput(text).replace(/-([a-z])/g, (_, g1) => g1.toUpperCase());
+
+  const toPascalCase = (text) => toCamelCase(text).replace(/^./, (c) => c.toUpperCase());
+
+  const toSnakeCase = (text) =>
+    normalizeInput(text)
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_|_$/g, '');
+
+  plop.setHelper('kebabCase', toKebabCase);
+  plop.setHelper('camelCase', toCamelCase);
+  plop.setHelper('pascalCase', toPascalCase);
+  plop.setHelper('snakeCase', toSnakeCase);
 
   plop.setGenerator('module', {
     description: 'Generate module (controller, service, route, validation, model)',
@@ -48,13 +56,18 @@ module.exports = (plop) => {
     actions: (data) => {
       const actions = [];
 
-      const kebab = '{{kebabCase name}}';
-      const camel = '{{camelCase name}}';
+      // Dynamically apply selected naming helpers
+      const fileName = plop.getHelper(NAMING.fileCase)(data.name);
+      const variableName = plop.getHelper(NAMING.variableCase)(data.name);
+
+      // Expose them to templates
+      data.fileName = fileName;
+      data.variableName = variableName;
 
       if (data.features.includes('route')) {
         actions.push({
           type: 'add',
-          path: `${basePath}/routes/${kebab}.routes.ts`,
+          path: `${basePath}/routes/${fileName}.routes.ts`,
           templateFile: 'generators/route.hbs',
         });
 
@@ -62,21 +75,21 @@ module.exports = (plop) => {
           type: 'modify',
           path: `${basePath}/routes/index.ts`,
           pattern: /(import express from 'express';\n)/,
-          template: `$1import ${camel}Route from './${kebab}.routes';\n`,
+          template: `$1import ${variableName}Route from './${fileName}.routes';\n`,
         });
 
         actions.push({
           type: 'modify',
           path: `${basePath}/routes/index.ts`,
           pattern: /(const defaultRoutes = \[\n)/,
-          template: `$1  {\n    path: '/${kebab}',\n    route: ${camel}Route,\n  },\n`,
+          template: `$1  {\n    path: '/${fileName}',\n    route: ${variableName}Route,\n  },\n`,
         });
       }
 
       if (data.features.includes('controller')) {
         actions.push({
           type: 'add',
-          path: `${basePath}/controllers/{{kebabCase name}}.controller.ts`,
+          path: `${basePath}/controllers/${fileName}.controller.ts`,
           templateFile: 'generators/controller.hbs',
         });
       }
@@ -84,7 +97,7 @@ module.exports = (plop) => {
       if (data.features.includes('service')) {
         actions.push({
           type: 'add',
-          path: `${basePath}/services/{{kebabCase name}}.service.ts`,
+          path: `${basePath}/services/${fileName}.service.ts`,
           templateFile: 'generators/service.hbs',
         });
       }
@@ -92,7 +105,7 @@ module.exports = (plop) => {
       if (data.features.includes('validation')) {
         actions.push({
           type: 'add',
-          path: `${basePath}/validations/{{kebabCase name}}.validation.ts`,
+          path: `${basePath}/validations/${fileName}.validation.ts`,
           templateFile: 'generators/validation.hbs',
         });
       }
@@ -100,7 +113,7 @@ module.exports = (plop) => {
       if (data.features.includes('model')) {
         actions.push({
           type: 'add',
-          path: `${basePath}/models/{{kebabCase name}}.model.ts`,
+          path: `${basePath}/models/${fileName}.model.ts`,
           templateFile: 'generators/model.hbs',
         });
       }
