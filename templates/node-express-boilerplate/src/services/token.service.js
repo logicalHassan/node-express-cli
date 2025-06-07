@@ -4,7 +4,7 @@ const httpStatus = require('http-status');
 const env = require('../config/env');
 const userService = require('./user.service');
 const { Token } = require('../models');
-const ApiError = require('../utils/ApiError');
+const ApiError = require('../utils/api-error');
 const { tokenTypes } = require('../config/tokens');
 
 /**

@@ -1,7 +1,6 @@
-import prisma from '@/lib/prisma';
-import { hashPassword } from '@/utils/passwordHash';
-import type { UserRole } from '@prisma/client';
 import readline from 'node:readline';
+import { PrismaClient, type UserRole } from '../src/lib/prisma-client';
+import { hashPassword } from '../src/utils/password-hash';
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -12,6 +11,8 @@ const adminDetails: Partial<{ email: string; password: string; name: string; rol
   name: 'Admin',
   role: 'ADMIN',
 };
+
+const prisma = new PrismaClient();
 
 async function seedDatabase() {
   try {

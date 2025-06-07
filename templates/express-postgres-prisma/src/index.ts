@@ -1,8 +1,8 @@
+import type { Server } from 'node:http';
 import app from './app';
-import prisma from './lib/prisma';
 import { env } from './config';
 import { logger } from './config/logger';
-import type { Server } from 'node:http';
+import prisma from './lib/prisma';
 
 let server: Server;
 
@@ -34,7 +34,7 @@ const exitHandler = async () => {
   }
 };
 
-const unexpectedErrorHandler = (error: any) => {
+const unexpectedErrorHandler = (error: unknown) => {
   logger.error(error);
   exitHandler();
 };

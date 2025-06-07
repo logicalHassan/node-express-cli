@@ -1,4 +1,6 @@
 import type { tokenTypes } from '@/config/tokens';
+import type { Request } from 'express';
+import type { JwtPayload as BaseJwtPayload } from 'jsonwebtoken';
 import type { Model } from 'mongoose';
 
 export interface IUser {
@@ -41,4 +43,13 @@ export interface PaginateResult<T> {
   limit: number;
   totalPages: number;
   totalResults: number;
+}
+
+export interface AuthedReq extends Request {
+  user: IUser;
+}
+
+export interface AppJwtPayload extends BaseJwtPayload {
+  sub: string;
+  type: string;
 }

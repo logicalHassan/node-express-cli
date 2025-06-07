@@ -1,7 +1,7 @@
 const httpStatus = require('http-status');
 const Otp = require('../models/otp.model');
-const ApiError = require('../utils/ApiError');
-const generateRandomOtp = require('../utils/generateOtp');
+const ApiError = require('../utils/api-error');
+const generateRandomOtp = require('../utils/generate-otp');
 const { userService } = require('.');
 
 const OTP_EXPIRATION_MS = 2 * 60 * 1000; // 2 minutes

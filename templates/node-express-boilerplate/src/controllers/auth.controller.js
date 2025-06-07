@@ -1,5 +1,5 @@
 const httpStatus = require('http-status');
-const catchAsync = require('../utils/catchAsync');
+const catchAsync = require('../utils/catch-async');
 const { authService, tokenService, emailService, otpService, userService } = require('../services');
 
 const register = catchAsync(async (req, res) => {

@@ -1,7 +1,7 @@
 import { logger } from '@/config/logger';
 import { tokenTypes } from '@/config/tokens';
 import { ApiError } from '@/utils';
-import { comparePassword } from '@/utils/passwordHash';
+import { comparePassword } from '@/utils/password-hash';
 import httpStatus from 'http-status';
 import tokenService from './token.service';
 import userService from './user.service';

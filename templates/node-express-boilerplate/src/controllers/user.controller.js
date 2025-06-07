@@ -1,9 +1,9 @@
 const fs = require('fs');
 const csv = require('csv-parser');
 const httpStatus = require('http-status');
-const catchAsync = require('../utils/catchAsync');
+const catchAsync = require('../utils/catch-async');
 const pick = require('../utils/pick');
-const ApiError = require('../utils/ApiError');
+const ApiError = require('../utils/api-error');
 const { userService } = require('../services');
 
 const createUser = catchAsync(async (req, res) => {

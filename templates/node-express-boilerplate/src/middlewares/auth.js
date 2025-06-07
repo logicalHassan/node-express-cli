@@ -1,8 +1,8 @@
 const jwt = require('jsonwebtoken');
 const httpStatus = require('http-status');
-const ApiError = require('../utils/ApiError');
+const ApiError = require('../utils/api-error');
 const env = require('../config/env');
-const catchAsync = require('../utils/catchAsync');
+const catchAsync = require('../utils/catch-async');
 const { tokenTypes } = require('../config/tokens');
 const { userService } = require('../services');
 
@@ -17,13 +17,19 @@ const authenticateToken = async (req) => {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'No token provided');
   }
 
-  const payload = jwt.verify(token, env.jwt.secret);
+  let decoded;
 
-  if (payload.type !== tokenTypes.ACCESS) {
+  try {
+    decoded = jwt.verify(token, env.jwt.secret);
+  } catch {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid or expired token');
+  }
+
+  if (decoded.type !== tokenTypes.ACCESS) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid token type');
   }
 
-  const user = await userService.getUserById(payload.sub);
+  const user = await userService.getUserById(decoded.sub);
 
   req.user = user;
 };
@@ -33,7 +39,7 @@ const authenticateToken = async (req) => {
  */
 const auth = (requiredRoles = []) =>
   catchAsync(async (req, res, next) => {
-    await authenticateToken(req, res);
+    await authenticateToken(req);
     const { role } = req.user;
 
     if (requiredRoles.lenght && !requiredRoles.includes(role)) {

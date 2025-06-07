@@ -7,3 +7,6 @@ tests
 .husky
 *.log
 .env*
+generated
+.vscode
+.husky

@@ -8,9 +8,9 @@ const routes = require('./routes');
 const env = require('./config/env');
 const morgan = require('./config/morgan');
 const corsConfig = require('./config/cors');
-const { authLimiter } = require('./middlewares/rateLimiter');
+const { authLimiter } = require('./middlewares/rate-limiter');
 const { errorConverter, errorHandler } = require('./middlewares/error');
-const ApiError = require('./utils/ApiError');
+const ApiError = require('./utils/api-error');
 
 const app = express();
 

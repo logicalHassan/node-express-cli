@@ -1,11 +1,19 @@
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 
-const ALLOWED_FILE_SIZE = 2000000; // 2MB
+const ALLOWED_FILE_SIZE = 2000000;
+const UPLOAD_DIR = 'src/uploads/';
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'src/uploads/');
+    if (!fs.existsSync(UPLOAD_DIR)) {
+      fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+    }
+    cb(null, UPLOAD_DIR);
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
   },
 });
 

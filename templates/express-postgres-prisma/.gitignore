@@ -137,3 +137,6 @@ dist
 
 # Crypto Keys
 *.pem
+
+# Prisma client
+generated

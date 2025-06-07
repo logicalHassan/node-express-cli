@@ -1,27 +1,34 @@
 # get-express-starter
 
-🚀 A simple CLI to generate Express.js boilerplates with TypeScript or JavaScript — batteries included.
+A powerful, customizable CLI that scaffolds full-featured Express.js boilerplates with **TypeScript** or **JavaScript** — production-ready from day one.
 
-## Features
+## Key Features
 
-- ✅ TypeScript & JavaScript support
-- ✅ MongoDB & PostgreSQL support
-- ✅ Fully modular boilerplates (auth, user, utils, etc.)
-- ✅ JWT authentication with protected routes
-- ✅ Robust request validation with Joi
-- ✅ Email verification & password reset workflows
-- ✅ Pagination utility included
-- ✅ Dockerized with ready-to-use `docker-compose`
-- ✅ ESM or CommonJS support for JavaScript
-- ✅ ESLint + Prettier / Biome, Husky, and lint-staged pre-configured
-- ✅ Easy prompts for clean setup
-- ✅ Custom code snippets included
-- ✅ Production-ready templates with `env` support
+- ✅ Choose between **TypeScript** or **JavaScript**
+- ✅ Select your database: **MongoDB** or **PostgreSQL**
+- ✅ **JWT-based Authentication** (login, register, logout)
+- ✅ **Email workflows**: Verify email, Forgot/Reset password
+- ✅ **Role-based Access Control** (RBAC)
+- ✅ Centralized **User Management System**
+- ✅ **Joi-based Request Validation**
+- ✅ Built-in **Pagination Utilities**
+- ✅ **Security Best Practices** (Helmet, CORS, sanitization)
+- ✅ **Versioned API Routes**
+- ✅ **Winston Logging** for errors & requests
+- ✅ **Centralized Config & ENV management**
+- ✅ **Plop.js-based Code Generator** (like NestJS CLI, but unopinionated!)
+- ✅ **Docker-Ready Setup** with `docker compose`
+- ✅ Dev-friendly tooling: **Biome / ESLint + Prettier**, **Husky**, **lint-staged**
+- ✅ Supports **ESM** or **CommonJS** in JavaScript mode
+- ✅ **Customizable Templates** for rapid feature/module generation
+
+---
 
 ## Installation
 
 ```bash
 npm install -g get-express-starter
+
 ```
 
 ## Usage
@@ -29,6 +36,16 @@ npm install -g get-express-starter
 ```bash
 get-express-starter
 ```
+
+You'll be prompted to choose:
+
+- Project name
+
+- Language (TypeScript / JavaScript)
+
+- Database (MongoDB / PostgreSQL)
+
+- Code generator setup
 
 ## Example
 
@@ -40,16 +57,64 @@ $ get-express-starter
 
 ➡️ cd my-api
 ➡️ pnpm install
-➡️ pnpm dev
+➡️ cp .env.example .env 
+➡️ pnpm run dev
 ```
 
-## Templates
+## Project Templates
 
-Templates
-Your project will be generated using boilerplate templates located internally:
+Depending on your choices, one of the following templates will be scaffolded:
 
 - Express + MongoDB + TypeScript
 
 - Express + PostgreSQL + TypeScript
 
 - Express + MongoDB + JavaScript
+
+## Code Generators
+
+You’ll get built-in support for generating:
+
+- Modules (routes, controllers, services)
+
+- Models
+
+- Middlewares
+
+- Validators
+
+- Utilities
+
+```bash
+pnpm generate
+
+```
+
+## Docker Support
+
+Each project comes with:
+
+- Dockerfile
+
+- docker-compose.yml
+
+Start your app via Docker:
+
+```bash
+docker compose up --build
+```
+
+## Linting & Formatting
+
+You get a preconfigured dev experience:
+
+- Biome (or ESLint + Prettier)
+
+- Husky + lint-staged (pre-commit hooks)
+
+Script examples:
+
+```bash
+pnpm lint      # Biome or ESLint
+pnpm format    # Prettier or Biome
+```

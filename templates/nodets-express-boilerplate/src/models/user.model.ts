@@ -1,5 +1,5 @@
 import type { IUser, PaginatedModel } from '@/types';
-import { hashPassword } from '@/utils/passwordHash';
+import { hashPassword } from '@/utils/password-hash';
 import { Schema, model } from 'mongoose';
 import validator from 'validator';
 import paginate from './plugins/paginate';

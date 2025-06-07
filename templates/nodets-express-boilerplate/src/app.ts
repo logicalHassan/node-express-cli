@@ -2,7 +2,7 @@ import 'express-async-errors';
 import { corsOptions, env } from '@/config';
 import morgan from '@/config/morgan';
 import { errorConverter, errorHandler } from '@/middlewares/error';
-import { authLimiter } from '@/middlewares/rateLimiter';
+import { authLimiter } from '@/middlewares/rate-limiter';
 import routes from '@/routes';
 import { ApiError } from '@/utils';
 import compression from 'compression';
@@ -51,7 +51,7 @@ app.get('/', (_, res) => {
 app.use('/v1', routes);
 
 // send back a 404 error for any unknown api request
-app.use((req, res, next) => {
+app.use((_req, _res, next) => {
   next(new ApiError(httpStatus.NOT_FOUND, 'No endpoint found'));
 });
 

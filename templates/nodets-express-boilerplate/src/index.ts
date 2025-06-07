@@ -29,7 +29,7 @@ const exitHandler = () => {
   }
 };
 
-const unexpectedErrorHandler = (error: any) => {
+const unexpectedErrorHandler = (error: unknown) => {
   logger.error(error);
   exitHandler();
 };

@@ -1,10 +1,9 @@
 const nodemailer = require('nodemailer');
 const env = require('../config/env');
 const logger = require('../config/logger');
-const { PASSWORD_RESET_REQUEST, VERIFICATION_EMAIL, PASSWORD_RESET_SUCCESS } = require('../utils/emailTemplates');
+const { PASSWORD_RESET_REQUEST, VERIFICATION_EMAIL, PASSWORD_RESET_SUCCESS } = require('../utils/email-templates');
 
-//* Nodemailer transport instance with SMTP configuration
-
+// Nodemailer transport instance with SMTP configuration
 const transport = nodemailer.createTransport(env.email.smtp);
 if (env.mode !== 'test') {
   transport

@@ -1,9 +1,9 @@
 import prisma from '@/lib/prisma';
-import httpStatus from 'http-status';
+import type { User as PrismaUser } from '@/types';
+import type { PaginationFilters, PaginationOptions, SafeUser } from '@/types';
 import { ApiError } from '@/utils';
-import { hashPassword } from '@/utils/passwordHash';
-import type { PaginationOptions, PaginationFilters, User } from '@/types';
-import type { User as PrismaUser } from '@prisma/client';
+import { hashPassword } from '@/utils/password-hash';
+import httpStatus from 'http-status';
 
 export const isEmailTaken = async (email: string, excludeUserId?: string): Promise<boolean> => {
   const user = await prisma.user.findFirst({
@@ -33,7 +33,7 @@ const createUser = async (userBody: PrismaUser) => {
 };
 
 const queryUsers = async (options: PaginationOptions, filters: PaginationFilters) => {
-  return prisma.user.paginate<User>(options, filters, ['password']);
+  return prisma.user.paginate<SafeUser>(options, filters, ['password']);
 };
 
 const getUserById = async (id: string) => {

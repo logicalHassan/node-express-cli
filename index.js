@@ -93,6 +93,7 @@ async function main() {
     log(chalk.blue(`\nNext steps:`));
     log(`   cd ${projectName}`);
     log(`   pnpm install`);
+    log(`   cp .env.example .env`);
     log(`   pnpm dev`);
     if (addGenerator) log(`   pnpm generate   # to run generators`);
     log(chalk.green('\n✅ All set! Happy coding!\n'));

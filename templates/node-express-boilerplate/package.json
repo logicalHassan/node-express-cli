@@ -10,6 +10,7 @@
     "lint:fix": "eslint . --fix",
     "prettier": "prettier --check **/*.js",
     "prettier:fix": "prettier --write **/*.js",
+    "seed:admin": "node scripts/seed-admin.js",
     "prepare": "husky"
   },
   "keywords": [],
