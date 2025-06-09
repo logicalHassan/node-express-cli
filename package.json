@@ -33,5 +33,13 @@
     "fs-extra": "^11.2.0",
     "prompts": "^2.4.2"
   },
+  "files": [
+    "index.js",
+    "package.json",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "type": "module"
 }

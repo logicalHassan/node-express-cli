@@ -119,30 +119,24 @@ async function main() {
     process.exit(1);
   }
 
+  // Ask about generators BEFORE cloning
+  let useGenerators = true;
+
+  const { includeGenerators } = await prompts(
+    {
+      type: 'confirm',
+      name: 'includeGenerators',
+      message: 'Include code generators?',
+      initial: true,
+    },
+    { onCancel }
+  );
+
+  useGenerators = includeGenerators;
+
   run(`git clone --depth 1 ${repo} ${projectName}`);
   removeGit(projectPath);
 
-  // Prompt for code generators if template supports them
-  let useGenerators = true;
-  if (
-    templateKey === 'typescript-postgres' ||
-    templateKey === 'typescript-mongo' ||
-    templateKey === 'javascript-mongo'
-  ) {
-    const { includeGenerators } = await prompts(
-      {
-        type: 'confirm',
-        name: 'includeGenerators',
-        message: 'Include code generators (Plop.js)?',
-        initial: true,
-      },
-      { onCancel }
-    );
-
-    useGenerators = includeGenerators;
-  }
-
-  // Conditionally clean up generators
   if (!useGenerators) {
     const generatorDir = templateKey === 'typescript-postgres' ? 'templates' : 'generators';
     cleanUpGenerators(projectPath, generatorDir);
