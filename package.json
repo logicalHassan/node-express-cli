@@ -1,6 +1,6 @@
 {
   "name": "get-express-starter",
-  "version": "3.1.0",
+  "version": "3.2.2",
   "description": "Get production ready express boilerplate with a single command",
   "bin": {
     "get-express-starter": "./index.js"
@@ -29,8 +29,6 @@
   "author": "Hassan Dev <hassandev404@gmail.com> (https://github.com/hassandev404)",
   "license": "MIT",
   "dependencies": {
-    "chalk": "^5.3.0",
-    "fs-extra": "^11.2.0",
     "prompts": "^2.4.2"
   },
   "files": [
