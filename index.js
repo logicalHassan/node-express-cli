@@ -1,107 +1,167 @@
 #!/usr/bin/env node
 
-import fs from 'fs-extra';
-import chalk from 'chalk';
 import prompts from 'prompts';
-import { join } from 'path';
-import { existsSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-import { addGeneratorToProject } from './addGenerator.js';
+import { execSync } from 'child_process';
+import { rmSync, existsSync, copyFileSync, readFileSync, writeFileSync, unlinkSync } from 'fs';
+import path from 'path';
 
+// Template repo map
 const TEMPLATE_MAP = {
-  'javascript-mongo': 'node-express-boilerplate',
-  'typescript-mongo': 'nodets-express-boilerplate',
-  'typescript-postgres': 'express-postgres-prisma',
+  'javascript-mongo': 'https://github.com/logicalHassan/node-express-boilerplate.git',
+  'typescript-mongo': 'https://github.com/logicalHassan/nodets-express-boilerplate.git',
+  'typescript-postgres': 'https://github.com/logicalHassan/express-postgres-prisma.git',
 };
 
-const log = console.log;
+// Run shell commands
+function run(command, options = {}) {
+  execSync(command, { stdio: 'inherit', ...options });
+}
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-async function main() {
-  log(chalk.cyan.bold('\nWelcome to get-express-starter\n'));
-
-  const { projectName } = await prompts({
-    type: 'text',
-    name: 'projectName',
-    message: 'Project name:',
-    initial: 'my-api-server',
-  });
-
-  const projectPath = join(process.cwd(), projectName);
-
-  if (existsSync(projectPath)) {
-    log(chalk.red(`Folder "${projectName}" already exists. Please choose a different name.`));
-    return;
-  }
-
-  const { language } = await prompts({
-    type: 'select',
-    name: 'language',
-    message: 'Choose your language:',
-    choices: [
-      { title: 'TypeScript (recommended)', value: 'typescript' },
-      { title: 'JavaScript', value: 'javascript' },
-    ],
-  });
-
-  let templateKey = '';
-
-  if (language === 'typescript') {
-    const { database } = await prompts({
-      type: 'select',
-      name: 'database',
-      message: 'Select a database:',
-      choices: [
-        { title: 'MongoDB', value: 'mongo' },
-        { title: 'PostgreSQL', value: 'postgres' },
-      ],
-    });
-
-    templateKey = `typescript-${database}`;
-  } else {
-    templateKey = 'javascript-mongo';
-  }
-
-  if (!TEMPLATE_MAP[templateKey]) {
-    log(chalk.red(`❌ Template for "${templateKey}" is not supported.`));
-    return;
-  }
-
-  const { addGenerator } = await prompts({
-    type: 'confirm',
-    name: 'addGenerator',
-    message: 'Do you want to include code generators?',
-    initial: true,
-  });
-
-  const selectedTemplate = TEMPLATE_MAP[templateKey];
-  const templatePath = join(__dirname, 'templates', selectedTemplate);
-
-  try {
-    log(chalk.yellow(`\nScaffolding project...`));
-    await fs.copy(templatePath, projectPath);
-
-    if (addGenerator) {
-      await addGeneratorToProject(selectedTemplate, projectPath, __dirname);
-    }
-
-    log(chalk.green(`✔ Project created in "${projectName}"`));
-
-    log(chalk.blue(`\nNext steps:`));
-    log(`   cd ${projectName}`);
-    log(`   pnpm install`);
-    log(`   cp .env.example .env`);
-    log(`   pnpm dev`);
-    if (addGenerator) log(`   pnpm generate   # to run generators`);
-    log(chalk.green('\n✅ All set! Happy coding!\n'));
-  } catch (err) {
-    log(chalk.red('❌ Failed to scaffold project:'), err);
+// Remove .git folder
+function removeGit(dir) {
+  const gitPath = path.join(dir, '.git');
+  if (existsSync(gitPath)) {
+    rmSync(gitPath, { recursive: true, force: true });
   }
 }
 
-main().catch((err) => {
-  console.error(chalk.red('❌ Unexpected error:'), err);
-});
+// Clean up code generator files
+function cleanUpGenerators(projectPath, generatorPath) {
+  const generatorsDir = path.join(projectPath, generatorPath);
+  if (existsSync(generatorsDir)) {
+    rmSync(generatorsDir, { recursive: true, force: true });
+  }
+
+  const plopfilePath = path.join(projectPath, 'plopfile.js');
+  if (existsSync(plopfilePath)) {
+    unlinkSync(plopfilePath);
+  }
+
+  const pkgPath = path.join(projectPath, 'package.json');
+  if (existsSync(pkgPath)) {
+    const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
+
+    if (pkg.devDependencies?.plop) {
+      delete pkg.devDependencies.plop;
+    }
+
+    if (pkg.scripts?.generate) {
+      delete pkg.scripts.generate;
+    }
+
+    writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
+  }
+
+  console.log('Cleaned up generators');
+}
+
+// Main CLI logic
+async function main() {
+  console.log('\nWelcome to get-express-starter!\n');
+
+  const onCancel = () => {
+    console.log('Cancelled by user.');
+    process.exit(0);
+  };
+
+  const { projectName } = await prompts(
+    {
+      type: 'text',
+      name: 'projectName',
+      message: 'Project name:',
+      initial: 'my-api-server',
+    },
+    { onCancel }
+  );
+
+  const projectPath = path.resolve(process.cwd(), projectName);
+
+  if (existsSync(projectPath)) {
+    console.error('Directory already exists. Choose another name.');
+    process.exit(1);
+  }
+
+  const { language } = await prompts(
+    {
+      type: 'select',
+      name: 'language',
+      message: 'Choose language:',
+      choices: [
+        { title: 'TypeScript (recommended)', value: 'typescript' },
+        { title: 'JavaScript', value: 'javascript' },
+      ],
+    },
+    { onCancel }
+  );
+
+  let templateKey = 'javascript-mongo';
+
+  if (language === 'typescript') {
+    const { database } = await prompts(
+      {
+        type: 'select',
+        name: 'database',
+        message: 'Choose database:',
+        choices: [
+          { title: 'MongoDB', value: 'mongo' },
+          { title: 'PostgreSQL', value: 'postgres' },
+        ],
+      },
+      { onCancel }
+    );
+
+    templateKey = `typescript-${database}`;
+  }
+
+  const repo = TEMPLATE_MAP[templateKey];
+  if (!repo) {
+    console.error(`No template found for "${templateKey}"`);
+    process.exit(1);
+  }
+
+  run(`git clone --depth 1 ${repo} ${projectName}`);
+  removeGit(projectPath);
+
+  // Prompt for code generators if template supports them
+  let useGenerators = true;
+  if (
+    templateKey === 'typescript-postgres' ||
+    templateKey === 'typescript-mongo' ||
+    templateKey === 'javascript-mongo'
+  ) {
+    const { includeGenerators } = await prompts(
+      {
+        type: 'confirm',
+        name: 'includeGenerators',
+        message: 'Include code generators (Plop.js)?',
+        initial: true,
+      },
+      { onCancel }
+    );
+
+    useGenerators = includeGenerators;
+  }
+
+  // Conditionally clean up generators
+  if (!useGenerators) {
+    const generatorDir = templateKey === 'typescript-postgres' ? 'templates' : 'generators';
+    cleanUpGenerators(projectPath, generatorDir);
+  }
+
+  // Copy .env
+  const envExample = path.join(projectPath, '.env.example');
+  const envFile = path.join(projectPath, '.env');
+  if (existsSync(envExample)) {
+    copyFileSync(envExample, envFile);
+    console.log('Created .env from .env.example');
+  }
+
+  // Done
+  console.log('\n✅ Project is ready!\n');
+  console.log(`   cd ${projectName}`);
+  console.log('   pnpm install');
+  console.log('   pnpm run dev');
+  console.log('\n🎉 Happy coding!\n');
+}
+
+main();
