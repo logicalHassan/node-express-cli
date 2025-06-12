@@ -4,20 +4,27 @@ import prompts from 'prompts';
 import { execSync } from 'child_process';
 import { rmSync, existsSync, copyFileSync, readFileSync, writeFileSync, unlinkSync } from 'fs';
 import path from 'path';
+import { log } from './custom-logger.js';
 
-// Template repo map
+// Version flag
+if (process.argv.includes('--version') || process.argv.includes('-v')) {
+  const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf-8'));
+  console.log(`v${pkg.version}`);
+  process.exit(0);
+}
+
+// Template map
 const TEMPLATE_MAP = {
   'javascript-mongo': 'https://github.com/logicalHassan/node-express-boilerplate.git',
   'typescript-mongo': 'https://github.com/logicalHassan/nodets-express-boilerplate.git',
   'typescript-postgres': 'https://github.com/logicalHassan/express-postgres-prisma.git',
 };
 
-// Run shell commands
+// Helpers
 function run(command, options = {}) {
   execSync(command, { stdio: 'inherit', ...options });
 }
 
-// Remove .git folder
 function removeGit(dir) {
   const gitPath = path.join(dir, '.git');
   if (existsSync(gitPath)) {
@@ -25,7 +32,6 @@ function removeGit(dir) {
   }
 }
 
-// Clean up code generator files
 function cleanUpGenerators(projectPath, generatorPath) {
   const generatorsDir = path.join(projectPath, generatorPath);
   if (existsSync(generatorsDir)) {
@@ -40,27 +46,19 @@ function cleanUpGenerators(projectPath, generatorPath) {
   const pkgPath = path.join(projectPath, 'package.json');
   if (existsSync(pkgPath)) {
     const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
-
-    if (pkg.devDependencies?.plop) {
-      delete pkg.devDependencies.plop;
-    }
-
-    if (pkg.scripts?.generate) {
-      delete pkg.scripts.generate;
-    }
-
+    delete pkg.devDependencies?.plop;
+    delete pkg.scripts?.generate;
     writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
   }
 
-  console.log('Cleaned up generators');
+  console.log('Cleaned up generators.');
 }
 
-// Main CLI logic
 async function main() {
-  console.log('\nWelcome to get-express-starter!\n');
+  log.title('\n🚀 Welcome to get-express-starter\n');
 
   const onCancel = () => {
-    console.log('Cancelled by user.');
+    log.error('Cancelled by user.');
     process.exit(0);
   };
 
@@ -77,7 +75,7 @@ async function main() {
   const projectPath = path.resolve(process.cwd(), projectName);
 
   if (existsSync(projectPath)) {
-    console.error('Directory already exists. Choose another name.');
+    log.error('A directory with that name already exists. Please choose another.');
     process.exit(1);
   }
 
@@ -115,12 +113,9 @@ async function main() {
 
   const repo = TEMPLATE_MAP[templateKey];
   if (!repo) {
-    console.error(`No template found for "${templateKey}"`);
+    log.error(`No template found for "${templateKey}"`);
     process.exit(1);
   }
-
-  // Ask about generators BEFORE cloning
-  let useGenerators = true;
 
   const { includeGenerators } = await prompts(
     {
@@ -132,17 +127,14 @@ async function main() {
     { onCancel }
   );
 
-  useGenerators = includeGenerators;
-
   run(`git clone --depth 1 ${repo} ${projectName}`);
   removeGit(projectPath);
 
-  if (!useGenerators) {
+  if (!includeGenerators) {
     const generatorDir = templateKey === 'typescript-postgres' ? 'templates' : 'generators';
     cleanUpGenerators(projectPath, generatorDir);
   }
 
-  // Copy .env
   const envExample = path.join(projectPath, '.env.example');
   const envFile = path.join(projectPath, '.env');
   if (existsSync(envExample)) {
@@ -150,12 +142,11 @@ async function main() {
     console.log('Created .env from .env.example');
   }
 
-  // Done
-  console.log('\n✅ Project is ready!\n');
+  log.success('\n🎉 Project setup complete!\n');
+  log.info(`Next steps:\n`);
   console.log(`   cd ${projectName}`);
-  console.log('   pnpm install');
-  console.log('   pnpm run dev');
-  console.log('\n🎉 Happy coding!\n');
+  console.log(`   pnpm install`);
+  console.log(`   pnpm run dev\n`);
 }
 
 main();

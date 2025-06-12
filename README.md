@@ -57,8 +57,8 @@ $ get-express-starter
 
 ➡️ cd my-api
 ➡️ pnpm install
-➡️ cp .env.example .env 
 ➡️ pnpm run dev
+➡️ pnpm generate // For code generators, if you added them
 ```
 
 ## Project Templates

@@ -1,6 +1,6 @@
 {
   "name": "get-express-starter",
-  "version": "3.2.2",
+  "version": "3.3.0",
   "description": "Get production ready express boilerplate with a single command",
   "bin": {
     "get-express-starter": "./index.js"
@@ -33,11 +33,9 @@
   },
   "files": [
     "index.js",
+    "custom-logger.js",
     "package.json",
     "README.md"
   ],
-  "engines": {
-    "node": ">=22.0.0"
-  },
   "type": "module"
 }
