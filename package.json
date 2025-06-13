@@ -35,7 +35,8 @@
   "files": [
     "source",
     "package.json",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "type": "module"
 }
