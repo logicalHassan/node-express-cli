@@ -8,7 +8,7 @@ import { log } from './custom-logger.js';
 
 // Version flag
 if (process.argv.includes('--version') || process.argv.includes('-v')) {
-  const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf-8'));
+  const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf-8'));
   console.log(`v${pkg.version}`);
   process.exit(0);
 }

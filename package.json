@@ -1,6 +1,6 @@
 {
   "name": "get-express-starter",
-  "version": "3.3.1",
+  "version": "3.3.2",
   "description": "Get production ready express boilerplate with a single command",
   "bin": {
     "get-express-starter": "./source/index.js"
