@@ -17,7 +17,8 @@ if (process.argv.includes('--version') || process.argv.includes('-v')) {
 const TEMPLATE_MAP = {
   'javascript-mongo': 'https://github.com/logicalHassan/node-express-boilerplate.git',
   'typescript-mongo': 'https://github.com/logicalHassan/nodets-express-boilerplate.git',
-  'typescript-postgres': 'https://github.com/logicalHassan/express-postgres-prisma.git',
+  'typescript-prisma': 'https://github.com/logicalHassan/express-postgres-prisma.git',
+  'typescript-drizzle': 'https://github.com/logicalHassan/express-postgres-drizzle.git',
 };
 
 // Helpers
@@ -102,7 +103,8 @@ async function main() {
         message: 'Choose database:',
         choices: [
           { title: 'MongoDB', value: 'mongo' },
-          { title: 'PostgreSQL', value: 'postgres' },
+          { title: 'PostgreSQL (Prisma)', value: 'prisma' },
+          { title: 'PostgreSQL (Drizzle)', value: 'drizzle' },
         ],
       },
       { onCancel }
@@ -131,7 +133,7 @@ async function main() {
   removeGit(projectPath);
 
   if (!includeGenerators) {
-    const generatorDir = templateKey === 'typescript-postgres' ? 'templates' : 'generators';
+    const generatorDir = templateKey === 'typescript-prisma' ? 'templates' : 'generators';
     cleanUpGenerators(projectPath, generatorDir);
   }
 
