@@ -67,7 +67,9 @@ Depending on your choices, one of the following templates will be scaffolded:
 
 - Express + MongoDB + TypeScript
 
-- Express + PostgreSQL + TypeScript
+- Express + PostgreSQL + TypeScript (Prisma)
+
+- Express + PostgreSQL + TypeScript (Drizzle)
 
 - Express + MongoDB + JavaScript
 
