@@ -1,62 +1,145 @@
-#!/usr/bin/env node
-
 import prompts from 'prompts';
 import { execSync } from 'child_process';
-import { rmSync, existsSync, copyFileSync, readFileSync, writeFileSync, unlinkSync } from 'fs';
+import { rmSync, existsSync, copyFileSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
-import { log } from './custom-logger.js';
+import { log } from './utils/custom-logger.js';
+import { TEMPLATE_MAP, AVAILABLE_PLUGINS, DEFAULT_PACKAGE_MANAGER } from './constants.js';
+import { checkForUpdates } from './utils/update-checker.js';
+import { showHelp } from './utils/show-help.js';
 
-// Version flag
-if (process.argv.includes('--version') || process.argv.includes('-v')) {
-  const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf-8'));
-  console.log(`v${pkg.version}`);
-  process.exit(0);
-}
+const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf-8'));
 
-// Template map
-const TEMPLATE_MAP = {
-  'javascript-mongo': 'https://github.com/logicalHassan/node-express-boilerplate.git',
-  'typescript-mongo': 'https://github.com/logicalHassan/nodets-express-boilerplate.git',
-  'typescript-prisma': 'https://github.com/logicalHassan/express-postgres-prisma.git',
-  'typescript-drizzle': 'https://github.com/logicalHassan/express-postgres-drizzle.git',
-};
-
-// Helpers
 function run(command, options = {}) {
   execSync(command, { stdio: 'inherit', ...options });
 }
 
 function removeGit(dir) {
-  const gitPath = path.join(dir, '.git');
-  if (existsSync(gitPath)) {
-    rmSync(gitPath, { recursive: true, force: true });
+  if (existsSync(path.join(dir, '.git'))) {
+    rmSync(path.join(dir, '.git'), { recursive: true, force: true });
   }
 }
 
-function cleanUpGenerators(projectPath, generatorPath) {
-  const generatorsDir = path.join(projectPath, generatorPath);
-  if (existsSync(generatorsDir)) {
-    rmSync(generatorsDir, { recursive: true, force: true });
-  }
-
-  const plopfilePath = path.join(projectPath, 'plopfile.js');
-  if (existsSync(plopfilePath)) {
-    unlinkSync(plopfilePath);
-  }
-
+function addDependencies(projectPath, dependencies, isDev = false) {
   const pkgPath = path.join(projectPath, 'package.json');
-  if (existsSync(pkgPath)) {
-    const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
-    delete pkg.devDependencies?.plop;
-    delete pkg.scripts?.generate;
-    writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
-  }
+  if (!existsSync(pkgPath)) return;
 
-  console.log('Cleaned up generators.');
+  const pkgData = JSON.parse(readFileSync(pkgPath, 'utf-8'));
+  const target = isDev ? 'devDependencies' : 'dependencies';
+
+  if (!pkgData[target]) pkgData[target] = {};
+  Object.assign(pkgData[target], dependencies);
+
+  writeFileSync(pkgPath, JSON.stringify(pkgData, null, 2));
 }
 
-async function main() {
-  log.title('\n🚀 Welcome to get-express-starter\n');
+/**
+ * Checks if the current directory was scaffolded by this tool
+ */
+async function verifyProjectIntegrity() {
+  const gitignorePath = path.join(process.cwd(), '.gitignore');
+  let isCompatible = false;
+
+  if (existsSync(gitignorePath)) {
+    const content = readFileSync(gitignorePath, 'utf-8');
+    if (content.includes('[get-express-starter]')) {
+      isCompatible = true;
+    }
+  }
+
+  if (!isCompatible) {
+    log.warn('Project compatibility signature not found in .gitignore');
+    const { proceed } = await prompts({
+      type: 'confirm',
+      name: 'proceed',
+      message:
+        'This project does not appear to be scaffolded by get-express-starter. Adding plugins might break your code. Proceed at your own risk?',
+      initial: false,
+    });
+
+    if (!proceed) {
+      log.error('Operation cancelled.');
+      process.exit(0);
+    }
+  }
+  return true;
+}
+
+function detectProjectLanguage() {
+  return existsSync(path.join(process.cwd(), 'tsconfig.json')) ? 'typescript' : 'javascript';
+}
+
+function installDependencies(projectPath) {
+  const pm = DEFAULT_PACKAGE_MANAGER;
+  console.log(`Installing dependencies using ${pm}...`);
+  try {
+    run(`${pm} install`, { cwd: projectPath });
+    console.log('Dependencies installed successfully.');
+  } catch (error) {
+    log.error('Failed to install dependencies automatically.');
+    console.log(`Please run '${pm} install' manually.`);
+  }
+}
+
+// --- COMMAND HANDLERS ---
+
+async function handleAddCommand(args) {
+  await verifyProjectIntegrity();
+
+  const language = detectProjectLanguage();
+  console.log(`Detected language: ${language === 'typescript' ? 'TypeScript' : 'JavaScript'}`);
+
+  let pluginKey = args[1];
+
+  if (pluginKey && !AVAILABLE_PLUGINS[pluginKey]) {
+    log.warn(`Plugin '${pluginKey}' not found.`);
+    pluginKey = undefined;
+  }
+
+  if (!pluginKey) {
+    const { selected } = await prompts({
+      type: 'select',
+      name: 'selected',
+      message: 'Which plugin would you like to add?',
+      choices: Object.values(AVAILABLE_PLUGINS).map((p) => ({
+        title: p.name,
+        value: Object.keys(AVAILABLE_PLUGINS).find((key) => AVAILABLE_PLUGINS[key] === p),
+      })),
+    });
+    pluginKey = selected;
+  }
+
+  if (!pluginKey || !AVAILABLE_PLUGINS[pluginKey]) {
+    log.error('No valid plugin selected.');
+    process.exit(1);
+  }
+
+  const plugin = AVAILABLE_PLUGINS[pluginKey];
+  const projectPath = process.cwd();
+
+  console.log(`Installing ${plugin.name}...`);
+
+  try {
+    // Apply Plugin Logic
+    plugin.apply(projectPath, language);
+
+    // Update Package.json
+    if (plugin.dependencies) {
+      addDependencies(projectPath, plugin.dependencies);
+    }
+    if (plugin.devDependencies) {
+      addDependencies(projectPath, plugin.devDependencies, true);
+    }
+
+    installDependencies(projectPath);
+    log.success(`Successfully added ${plugin.name}`);
+  } catch (error) {
+    log.error(`Failed to add plugin: ${error.message}`);
+    console.error(error);
+  }
+}
+
+async function handleScaffoldCommand() {
+  log.title('\nWelcome to get-express-starter\n');
 
   const onCancel = () => {
     log.error('Cancelled by user.');
@@ -76,7 +159,7 @@ async function main() {
   const projectPath = path.resolve(process.cwd(), projectName);
 
   if (existsSync(projectPath)) {
-    log.error('A directory with that name already exists. Please choose another.');
+    log.error(`Directory "${projectName}" already exists.`);
     process.exit(1);
   }
 
@@ -94,7 +177,6 @@ async function main() {
   );
 
   let templateKey = 'javascript-mongo';
-
   if (language === 'typescript') {
     const { database } = await prompts(
       {
@@ -109,34 +191,56 @@ async function main() {
       },
       { onCancel }
     );
-
     templateKey = `typescript-${database}`;
   }
 
-  const repo = TEMPLATE_MAP[templateKey];
-  if (!repo) {
-    log.error(`No template found for "${templateKey}"`);
-    process.exit(1);
-  }
-
-  const { includeGenerators } = await prompts(
+  const { selectedPlugins } = await prompts(
     {
-      type: 'confirm',
-      name: 'includeGenerators',
-      message: 'Include code generators?',
-      initial: true,
+      type: 'multiselect',
+      name: 'selectedPlugins',
+      message: 'Select additional features:',
+      choices: Object.keys(AVAILABLE_PLUGINS).map((key) => ({
+        title: AVAILABLE_PLUGINS[key].name,
+        value: key,
+      })),
+      hint: '- Space to select. Return to submit',
     },
     { onCancel }
   );
 
-  run(`git clone --depth 1 ${repo} ${projectName}`);
-  removeGit(projectPath);
+  // --- SCAFFOLDING ---
+  log.info('Scaffolding project...');
 
-  if (!includeGenerators) {
-    const generatorDir = templateKey === 'typescript-prisma' ? 'templates' : 'generators';
-    cleanUpGenerators(projectPath, generatorDir);
+  try {
+    run(`git clone --depth 1 ${TEMPLATE_MAP[templateKey]} ${projectName}`, { stdio: 'ignore' });
+    removeGit(projectPath);
+  } catch (e) {
+    log.error('Failed to clone repository');
+    process.exit(1);
   }
 
+  // --- PLUGINS ---
+  if (selectedPlugins.length > 0) {
+    log.info('Configuring plugins...');
+    selectedPlugins.forEach((key) => {
+      const plugin = AVAILABLE_PLUGINS[key];
+      try {
+        plugin.apply(projectPath, language);
+
+        if (plugin.dependencies) {
+          addDependencies(projectPath, plugin.dependencies);
+        }
+        if (language === 'typescript' && plugin.devDependencies) {
+          addDependencies(projectPath, plugin.devDependencies, true);
+        }
+        log.info(`- ${plugin.name} configured`);
+      } catch (error) {
+        log.error(`Failed to configure ${plugin.name}`);
+      }
+    });
+  }
+
+  // --- ENV SETUP ---
   const envExample = path.join(projectPath, '.env.example');
   const envFile = path.join(projectPath, '.env');
   if (existsSync(envExample)) {
@@ -144,11 +248,39 @@ async function main() {
     console.log('Created .env from .env.example');
   }
 
-  log.success('\n🎉 Project setup complete!\n');
-  log.info(`Next steps:\n`);
+  log.success(`\n🎉 Project ${projectName} created successfully!\n`);
   console.log(`   cd ${projectName}`);
   console.log(`   pnpm install`);
   console.log(`   pnpm run dev\n`);
 }
 
-main();
+// --- MAIN EXECUTION ---
+
+async function main() {
+  await checkForUpdates(pkg);
+
+  const args = process.argv.slice(2);
+
+  // Handle Flags
+  if (args.includes('--help') || args.includes('-h')) return showHelp(pkg);
+  if (args.includes('--version') || args.includes('-v')) {
+    console.log(pkg.version);
+    process.exit(0);
+  }
+
+  // Route Commands
+  if (args[0] === 'add') {
+    await handleAddCommand(args);
+  } else if (args.length === 0) {
+    await handleScaffoldCommand();
+  } else {
+    console.log(`Unknown command: ${args[0]}`);
+    console.log(`Run ${pkg.name} --help for usage.`);
+    process.exit(1);
+  }
+}
+
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
