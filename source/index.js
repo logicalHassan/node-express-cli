@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import prompts from 'prompts';
 import { execSync } from 'child_process';
 import { rmSync, existsSync, copyFileSync, readFileSync, writeFileSync } from 'fs';

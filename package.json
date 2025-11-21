@@ -1,6 +1,6 @@
 {
   "name": "get-express-starter",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "description": "Get production ready express boilerplate with a single command",
   "bin": {
     "get-express-starter": "./source/index.js"
@@ -32,6 +32,14 @@
   "dependencies": {
     "prompts": "^2.4.2"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://https://github.com/logicalHassan/node-express-cli.git"
+  },
+  "bugs": {
+    "url": "https://https://github.com/logicalHassan/node-express-cli/issues"
+  },
+  "homepage": "https://https://github.com/logicalHassan/node-express-cli#readme",
   "files": [
     "source",
     "package.json",
