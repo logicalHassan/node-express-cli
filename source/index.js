@@ -214,8 +214,7 @@ async function handleScaffoldCommand() {
     { onCancel }
   );
 
-  console.log('');
-  log.info('\nScaffolding project...');
+  log.info('Scaffolding project...');
 
   try {
     run(`git clone --depth 1 ${TEMPLATE_MAP[templateKey]} ${projectName}`, { stdio: 'ignore' });
@@ -227,7 +226,7 @@ async function handleScaffoldCommand() {
 
   // --- PLUGINS ---
   if (selectedPlugins.length > 0) {
-    log.info('Configuring plugins...');
+    log.info('Configuring plugins...\n');
 
     const actions = new GeneratorActions(projectPath, false);
 
@@ -242,7 +241,7 @@ async function handleScaffoldCommand() {
         if (language === 'typescript' && plugin.devDependencies) {
           addDependencies(projectPath, plugin.devDependencies, true);
         }
-        log.success(`${plugin.name} configured\n`);
+        log.success(`${plugin.name} configured`);
       } catch (error) {
         console.log('handleScaffoldCommand ~ error:', error);
         log.error(`Failed to configure ${plugin.name}`);
