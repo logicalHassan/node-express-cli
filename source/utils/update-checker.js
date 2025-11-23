@@ -33,7 +33,8 @@ export function checkForUpdates(pkg) {
             console.log(`\n${top}\n${middle}\n${bottom}\x1b[0m\n`);
           }
           resolve();
-        } catch (e) {
+        } catch (error) {
+          console.log(error);
           resolve();
         }
       });

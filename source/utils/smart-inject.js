@@ -57,4 +57,6 @@ export function smartInject(filePath, modifications) {
   if (modified) {
     fs.writeFileSync(filePath, content, 'utf8');
   }
+
+  return modified;
 }

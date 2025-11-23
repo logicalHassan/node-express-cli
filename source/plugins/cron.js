@@ -1,7 +1,3 @@
-import path from 'path';
-import fs from 'fs';
-import { smartInject } from '../utils/smart-inject.js';
-
 const CRON_CONSTANTS_CONTENT_TS = `export const CronExpression = {
   EVERY_SECOND: '* * * * * *',
   EVERY_5_SECONDS: '*/5 * * * * *',
@@ -185,15 +181,11 @@ export const cronPlugin = {
     '@types/node-cron': '^3.0.11',
   },
 
-  apply: (projectPath, language) => {
+  apply: (projectPath, language, actions) => {
     const isTS = language === 'typescript';
     const ext = isTS ? 'ts' : 'js';
-    const jobsDir = path.join(projectPath, 'src', 'jobs');
-
-    if (!fs.existsSync(jobsDir)) fs.mkdirSync(jobsDir, { recursive: true });
 
     const constContent = isTS ? CRON_CONSTANTS_CONTENT_TS : CRON_CONSTANTS_CONTENT_JS;
-    fs.writeFileSync(path.join(jobsDir, `cron-constants.${ext}`), constContent);
 
     const jobContent = isTS
       ? `import { logger } from '../config/logger';
@@ -215,8 +207,6 @@ module.exports = {
   }
 };`;
 
-    fs.writeFileSync(path.join(jobsDir, `example.${ext}`), jobContent);
-
     const loaderContent = isTS
       ? `import cron from 'node-cron';
 import { exampleJob } from './example';
@@ -237,31 +227,25 @@ const initCronJobs = () => {
 
 module.exports = { initCronJobs };`;
 
-    fs.writeFileSync(path.join(jobsDir, `index.${ext}`), loaderContent);
+    actions.createFile(`src/jobs/cron-constants.${ext}`, constContent);
+    actions.createFile(`src/jobs/example.${ext}`, jobContent);
+    actions.createFile(`src/jobs/index.${ext}`, loaderContent);
 
-    const entryFile = path.join(projectPath, 'src', `index.${ext}`);
+    const importStatement = isTS
+      ? "import { initCronJobs } from './jobs';"
+      : "const { initCronJobs } = require('./jobs');";
 
-    if (fs.existsSync(entryFile)) {
-      const importStatement = isTS
-        ? "import { initCronJobs } from './jobs';"
-        : "const { initCronJobs } = require('./jobs');";
-
-      const modifications = [
-        {
-          type: 'import',
-          text: importStatement,
-        },
-        {
-          type: 'inject',
-          anchors: ['logger.info(`Listening on port ${env.port}`);'],
-          location: 'after',
-          text: 'initCronJobs();',
-        },
-      ];
-
-      smartInject(entryFile, modifications);
-    } else {
-      console.warn(`⚠️ Could not find entry file (index.${ext}). Manual injection required.`);
-    }
+    actions.updateFile(`src/index.${ext}`, [
+      {
+        type: 'import',
+        text: importStatement,
+      },
+      {
+        type: 'inject',
+        anchors: ['logger.info(`Listening on port ${env.port}`);'],
+        location: 'after',
+        text: 'initCronJobs();',
+      },
+    ]);
   },
 };

@@ -1,14 +1,20 @@
 #!/usr/bin/env node
-import prompts from 'prompts';
+
 import { execSync } from 'child_process';
 import { rmSync, existsSync, copyFileSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
-import { log } from './utils/custom-logger.js';
+
+import prompts from 'prompts';
+
 import { TEMPLATE_MAP, AVAILABLE_PLUGINS, DEFAULT_PACKAGE_MANAGER } from './constants.js';
-import { checkForUpdates } from './utils/update-checker.js';
+import { log } from './utils/custom-logger.js';
+import { GeneratorActions } from './utils/generator-action.js';
 import { showHelp } from './utils/show-help.js';
+import { checkForUpdates } from './utils/update-checker.js';
 
 const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf-8'));
+
+// --- HELPERS ---
 
 function run(command, options = {}) {
   execSync(command, { stdio: 'inherit', ...options });
@@ -33,9 +39,6 @@ function addDependencies(projectPath, dependencies, isDev = false) {
   writeFileSync(pkgPath, JSON.stringify(pkgData, null, 2));
 }
 
-/**
- * Checks if the current directory was scaffolded by this tool
- */
 async function verifyProjectIntegrity() {
   const gitignorePath = path.join(process.cwd(), '.gitignore');
   let isCompatible = false;
@@ -71,10 +74,11 @@ function detectProjectLanguage() {
 
 function installDependencies(projectPath) {
   const pm = DEFAULT_PACKAGE_MANAGER;
-  console.log(`Installing dependencies using ${pm}...`);
+  console.log('');
+  log.info(`Installing dependencies using ${pm}...`);
   try {
     run(`${pm} install`, { cwd: projectPath });
-    console.log('Dependencies installed successfully.');
+    log.success('Dependencies installed successfully.');
   } catch (error) {
     log.error('Failed to install dependencies automatically.');
     console.log(`Please run '${pm} install' manually.`);
@@ -87,7 +91,6 @@ async function handleAddCommand(args) {
   await verifyProjectIntegrity();
 
   const language = detectProjectLanguage();
-  console.log(`Detected language: ${language === 'typescript' ? 'TypeScript' : 'JavaScript'}`);
 
   let pluginKey = args[1];
 
@@ -117,13 +120,15 @@ async function handleAddCommand(args) {
   const plugin = AVAILABLE_PLUGINS[pluginKey];
   const projectPath = process.cwd();
 
-  console.log(`Installing ${plugin.name}...`);
+  console.log('');
+  log.info(`Configuring ${plugin.name}...`);
+  console.log('');
+
+  const actions = new GeneratorActions(projectPath, true);
 
   try {
-    // Apply Plugin Logic
-    plugin.apply(projectPath, language);
+    plugin.apply(projectPath, language, actions);
 
-    // Update Package.json
     if (plugin.dependencies) {
       addDependencies(projectPath, plugin.dependencies);
     }
@@ -209,8 +214,8 @@ async function handleScaffoldCommand() {
     { onCancel }
   );
 
-  // --- SCAFFOLDING ---
-  log.info('Scaffolding project...');
+  console.log('');
+  log.info('\nScaffolding project...');
 
   try {
     run(`git clone --depth 1 ${TEMPLATE_MAP[templateKey]} ${projectName}`, { stdio: 'ignore' });
@@ -223,10 +228,13 @@ async function handleScaffoldCommand() {
   // --- PLUGINS ---
   if (selectedPlugins.length > 0) {
     log.info('Configuring plugins...');
+
+    const actions = new GeneratorActions(projectPath, false);
+
     selectedPlugins.forEach((key) => {
       const plugin = AVAILABLE_PLUGINS[key];
       try {
-        plugin.apply(projectPath, language);
+        plugin.apply(projectPath, language, actions);
 
         if (plugin.dependencies) {
           addDependencies(projectPath, plugin.dependencies);
@@ -234,22 +242,21 @@ async function handleScaffoldCommand() {
         if (language === 'typescript' && plugin.devDependencies) {
           addDependencies(projectPath, plugin.devDependencies, true);
         }
-        log.info(`- ${plugin.name} configured`);
+        log.success(`${plugin.name} configured\n`);
       } catch (error) {
+        console.log('handleScaffoldCommand ~ error:', error);
         log.error(`Failed to configure ${plugin.name}`);
       }
     });
   }
 
-  // --- ENV SETUP ---
   const envExample = path.join(projectPath, '.env.example');
   const envFile = path.join(projectPath, '.env');
   if (existsSync(envExample)) {
     copyFileSync(envExample, envFile);
-    console.log('Created .env from .env.example');
   }
 
-  log.success(`\n🎉 Project ${projectName} created successfully!\n`);
+  log.success(`Project ${projectName} created successfully!\n`);
   console.log(`   cd ${projectName}`);
   console.log(`   pnpm install`);
   console.log(`   pnpm run dev\n`);
@@ -262,20 +269,18 @@ async function main() {
 
   const args = process.argv.slice(2);
 
-  // Handle Flags
   if (args.includes('--help') || args.includes('-h')) return showHelp(pkg);
   if (args.includes('--version') || args.includes('-v')) {
     console.log(pkg.version);
     process.exit(0);
   }
 
-  // Route Commands
   if (args[0] === 'add') {
     await handleAddCommand(args);
   } else if (args.length === 0) {
     await handleScaffoldCommand();
   } else {
-    console.log(`Unknown command: ${args[0]}`);
+    log.error(`Unknown command: ${args[0]}`);
     console.log(`Run ${pkg.name} --help for usage.`);
     process.exit(1);
   }

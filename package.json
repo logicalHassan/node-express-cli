@@ -34,17 +34,22 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://https://github.com/logicalHassan/node-express-cli.git"
+    "url": "git+https://github.com/logicalHassan/node-express-cli.git"
   },
   "bugs": {
-    "url": "https://https://github.com/logicalHassan/node-express-cli/issues"
+    "url": "https://github.com/logicalHassan/node-express-cli/issues"
   },
-  "homepage": "https://https://github.com/logicalHassan/node-express-cli#readme",
+  "homepage": "https://github.com/logicalHassan/node-express-cli#readme",
   "files": [
     "source",
     "package.json",
     "README.md",
     "LICENSE"
   ],
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "eslint": "^9.39.1",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-n": "^17.23.1"
+  }
 }

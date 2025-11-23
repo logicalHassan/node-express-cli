@@ -1,6 +1,7 @@
 const styles = {
   reset: '\x1b[0m',
   bold: '\x1b[1m',
+  dim: '\x1b[2m',
   italic: '\x1b[3m',
 
   red: '\x1b[31m',
@@ -12,27 +13,50 @@ const styles = {
   gray: '\x1b[90m',
 };
 
+const symbols = {
+  info: 'ℹ',
+  success: '✔',
+  warning: '⚠',
+  error: '✖',
+  arrow: '➜',
+};
+
 function style(text, color = '', weight = '') {
   return `${styles[weight] || ''}${styles[color] || ''}${text}${styles.reset}`;
 }
 
 export const log = {
   info(msg) {
-    console.log(style(msg, 'cyan'));
+    console.log(style(msg, 'blue'));
   },
+
   success(msg) {
-    console.log(style(msg, 'green', 'bold'));
+    console.log(`${style(symbols.success, 'green', 'bold')} ${msg}`);
   },
+
   warn(msg) {
-    console.log(style(msg, 'yellow', 'bold'));
+    console.log(`${style(symbols.warning, 'yellow', 'bold')} ${msg}`);
   },
+
   error(msg) {
-    console.error(style(msg, 'red', 'bold'));
+    console.error(`${style(symbols.error, 'red', 'bold')} ${msg}`);
   },
+
   title(msg) {
-    console.log(style(msg, 'cyan', 'bold'));
+    console.log(`${style(msg, 'cyan', 'bold')}`);
   },
-  custom(msg, color = '', weight = '') {
-    console.log(style(msg, color, weight));
+
+  action(type, filePath) {
+    const badges = {
+      create: style('CREATE', 'green'),
+      update: style('UPDATE', 'yellow'),
+      skip: style('SKIP  ', 'gray'),
+      error: style('ERROR ', 'red'),
+    };
+
+    const badge = badges[type.toLowerCase()] || type;
+    console.log(` ${badge} ${filePath}`);
   },
+
+  custom: style,
 };
