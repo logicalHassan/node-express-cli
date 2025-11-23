@@ -1,7 +1,9 @@
 import { cronPlugin } from './plugins/cron.js';
+import { redisPlugin } from './plugins/redis.js';
 
 export const AVAILABLE_PLUGINS = {
   cron: cronPlugin,
+  redis: redisPlugin,
   // Add future plugins here: 'socket': socketPlugin, etc.
 };
 

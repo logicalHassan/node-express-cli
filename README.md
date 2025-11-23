@@ -172,9 +172,10 @@ npx get-express-starter add <plugin-name>
 
 ### Available Plugins
 
-| Plugin     | Command    | Description                                                             |
-|------------|------------|-------------------------------------------------------------------------|
-| Cron Jobs  | `add cron` | Adds node-cron setup, scheduled task architecture, and example jobs.   |
+| Plugin     | Command     | Description                                                             |
+|------------|-------------|-------------------------------------------------------------------------|
+| Cron Jobs  | `add cron`  | Adds node-cron setup, scheduled task architecture, and example jobs.    |
+| Redis      | `add redis` | Configures a robust Redis caching layer and adds a separate Docker Compose file with RedisInsight for local inspection.    |
 
 ### Plugin Example
 
