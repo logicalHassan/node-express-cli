@@ -51,7 +51,7 @@ async function verifyProjectIntegrity() {
   }
 
   if (!isCompatible) {
-    log.warn('Project compatibility signature not found in .gitignore');
+    log.warn('Project compatibility signature not found');
     const { proceed } = await prompts({
       type: 'confirm',
       name: 'proceed',
